@@ -1,0 +1,14 @@
+<div
+  class="glow-horizon glow-horizon--{{ variant }} {{ className }}"
+  style="isolation: isolate">
+  <div
+    *ngFor="let arc of arcConfigsOrDefault; trackBy: trackArcByKey"
+    class="gh-arc"
+    [class.gh-arc--static]="arc.initialOffset === undefined"
+    [style.animation-delay]="arc.delay + 's'"
+    [style.scale]="arc.size / 100"
+    [style.background]="arc.color"
+    [style.filter]="arc.blur !== undefined ? 'blur(' + arc.blur + 'px)' : null"
+    [style.boxShadow]="arc.boxShadow || null">
+  </div>
+</div>
