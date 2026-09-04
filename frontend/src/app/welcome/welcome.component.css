@@ -1,0 +1,117 @@
+.welcome-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  z-index: 2;
+  text-align: center;
+}
+
+.welcome__logo {
+  width: 96px;
+  height: 96px;
+  object-fit: contain;
+  margin-bottom: 16px;
+  animation: float 4s ease-in-out infinite, fade-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.3s both;
+}
+
+.welcome__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 16px;
+  border-radius: 9999px;
+  background: rgba(168, 85, 247, 0.1);
+  border: 1px solid rgba(168, 85, 247, 0.2);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  margin-bottom: 24px;
+  color: #d8b4fe;
+  font-size: 0.875rem;
+  font-weight: 500;
+  animation: fade-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.5s both;
+}
+
+.welcome__title {
+  font-size: clamp(2.2rem, 6vw, 4.5rem);
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  margin-bottom: 20px;
+  background: linear-gradient(to bottom, #ffffff 0%, #9ca3af 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: fade-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.7s both;
+}
+
+.welcome__subtitle {
+  color: #9ca3af;
+  font-size: 1.125rem;
+  max-width: 42rem;
+  margin: 0 auto 12px;
+  animation: fade-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.9s both;
+}
+
+.welcome__role-badge {
+  display: inline-block;
+  padding: 4px 14px;
+  border-radius: 9999px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  margin-left: 6px;
+}
+
+.badge--admin {
+  background: rgba(230, 126, 34, 0.2);
+  color: #f39c12;
+  border: 1px solid rgba(243, 156, 18, 0.4);
+}
+
+.badge--user {
+  background: rgba(0, 184, 147, 0.16);
+  color: #00b894;
+  border: 1px solid rgba(0, 184, 148, 0.4);
+}
+
+.welcome__message {
+  color: #9ca3af;
+  font-size: 1.125rem;
+  max-width: 42rem;
+  margin: 0 auto 40px;
+  animation: fade-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.9s both;
+}
+
+.welcome__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 32px;
+  background: #ffffff;
+  color: #000000;
+  font-weight: 600;
+  font-size: 1rem;
+  border: none;
+  border-radius: 8px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  animation: fade-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) 1.1s both;
+}
+
+.welcome__cta:hover {
+  background: #e5e7eb;
+  transform: translateY(-1px);
+}
+
+@keyframes fade-up {
+  from { translate: 0 24px; opacity: 0; }
+  to   { translate: 0 0;    opacity: 1; }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-6px); }
+}

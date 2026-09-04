@@ -1,0 +1,249 @@
+<div class="dashboard-layout">
+  <app-sidebar></app-sidebar>
+
+  <main class="main-content">
+    <!-- Header -->
+    <header class="header">
+      <div class="title-area">
+        <h1>Transacciones</h1>
+        <p>Administra y registra todos tus movimientos financieros</p>
+      </div>
+      <div class="header-actions">
+        <button class="btn btn-primary" (click)="openModal()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+          Nuevo Movimiento
+        </button>
+      </div>
+    </header>
+
+    <!-- Summary Cards -->
+    <div class="summary-row">
+      <div class="summary-card income">
+        <span class="summary-label">Ingresos (filtrados)</span>
+        <span class="summary-value text-green">+Q{{ totalIngresos | number:'1.2-2' }}</span>
+      </div>
+      <div class="summary-card expense">
+        <span class="summary-label">Gastos (filtrados)</span>
+        <span class="summary-value text-pink">-Q{{ totalGastos | number:'1.2-2' }}</span>
+      </div>
+      <div class="summary-card balance" [class.negative]="balance < 0">
+        <span class="summary-label">Balance</span>
+        <span class="summary-value" [class.text-green]="balance >= 0" [class.text-pink]="balance < 0">
+          {{ balance >= 0 ? '+' : '' }}Q{{ balance | number:'1.2-2' }}
+        </span>
+      </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="filters-bar">
+      <div class="search-wrap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="2" width="16" height="16">
+          <circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+        <input type="text" placeholder="Buscar descripción o categoría..."
+               [(ngModel)]="searchTerm" (ngModelChange)="applyFilters()" class="search-input">
+      </div>
+
+      <div class="filter-group">
+        <label>Tipo</label>
+        <div class="filter-pills">
+          <button class="pill" [class.active]="filterType === 'Todos'"
+                  (click)="filterType = 'Todos'; applyFilters()">Todos</button>
+          <button class="pill ingreso" [class.active]="filterType === 'Ingreso'"
+                  (click)="filterType = 'Ingreso'; applyFilters()">Ingresos</button>
+          <button class="pill gasto" [class.active]="filterType === 'Gasto'"
+                  (click)="filterType = 'Gasto'; applyFilters()">Gastos</button>
+        </div>
+      </div>
+
+      <div class="filter-group">
+        <label>Categoría</label>
+        <select class="filter-select" [(ngModel)]="filterCategory" (ngModelChange)="applyFilters()">
+          <option *ngFor="let c of filterCategories" [value]="c">{{ c }}</option>
+        </select>
+      </div>
+
+      <button class="clear-btn" (click)="clearFilters()" title="Limpiar filtros">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+          <line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+        Limpiar
+      </button>
+
+      <span class="result-count">{{ transactions.length }} resultado{{ transactions.length !== 1 ? 's' : '' }}</span>
+    </div>
+
+    <!-- Table -->
+    <div class="table-card">
+      <div class="table-responsive">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th class="sortable" (click)="toggleSort('description')">
+                Descripción
+                <svg class="sort-icon" [class.active]="sortField === 'description'"
+                     [class.asc]="sortField === 'description' && sortDir === 'asc'"
+                     viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12">
+                  <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+              </th>
+              <th>Categoría</th>
+              <th>Tipo</th>
+              <th class="sortable" (click)="toggleSort('date')">
+                Fecha
+                <svg class="sort-icon" [class.active]="sortField === 'date'"
+                     [class.asc]="sortField === 'date' && sortDir === 'asc'"
+                     viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12">
+                  <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+              </th>
+              <th class="text-right sortable" (click)="toggleSort('amount')">
+                Monto
+                <svg class="sort-icon" [class.active]="sortField === 'amount'"
+                     [class.asc]="sortField === 'amount' && sortDir === 'asc'"
+                     viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12">
+                  <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+              </th>
+              <th class="text-center">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let t of transactions">
+              <td>
+                <div class="desc-cell">
+                  <span class="cat-icon" [style.background-color]="getCategoryColor(t.category) + '26'"
+                        [style.color]="getCategoryColor(t.category)">
+                    {{ t.category.charAt(0) }}
+                  </span>
+                  <span class="text-bold">{{ t.description }}</span>
+                </div>
+              </td>
+              <td>
+                <span class="category-pill"
+                      [style.border-color]="getCategoryColor(t.category) + '60'"
+                      [style.color]="getCategoryColor(t.category)">
+                  {{ t.category }}
+                </span>
+              </td>
+              <td>
+                <span class="badge" [ngClass]="t.type === 'Gasto' ? 'badge-gasto' : 'badge-ingreso'">
+                  {{ t.type }}
+                </span>
+              </td>
+              <td class="text-muted">{{ t.date | date:'dd/MMM/yyyy' }}</td>
+              <td class="text-right text-bold"
+                  [class.text-pink]="t.type === 'Gasto'"
+                  [class.text-green]="t.type === 'Ingreso'">
+                {{ t.type === 'Gasto' ? '-' : '+' }}Q{{ t.amount | number:'1.2-2' }}
+              </td>
+              <td class="text-center action-cell">
+                <button class="action-btn edit-btn" title="Editar" (click)="openEditModal(t)">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15">
+                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                  </svg>
+                </button>
+                <button class="action-btn delete-btn" title="Eliminar" (click)="deleteTransaction(t.id)">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15">
+                    <polyline points="3 6 5 6 21 6"></polyline>
+                    <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path>
+                    <path d="M10 11v6"></path><path d="M14 11v6"></path>
+                    <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"></path>
+                  </svg>
+                </button>
+              </td>
+            </tr>
+            <tr *ngIf="transactions.length === 0">
+              <td colspan="6" class="empty-state">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#4b5563" stroke-width="1.5" width="40" height="40">
+                  <rect x="2" y="5" width="20" height="14" rx="2"></rect>
+                  <line x1="2" y1="10" x2="22" y2="10"></line>
+                </svg>
+                <p>No hay transacciones que coincidan con los filtros.</p>
+                <button class="link-btn" (click)="clearFilters()">Limpiar filtros</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- Modal Backdrop -->
+<div class="modal-backdrop" *ngIf="showModal" (click)="closeModal()"></div>
+
+<!-- Add / Edit Modal -->
+<div class="modal" *ngIf="showModal">
+  <div class="modal-header">
+    <h3>{{ editingId ? 'Editar Movimiento' : 'Registrar Movimiento' }}</h3>
+    <button class="close-btn" (click)="closeModal()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="18" y1="6" x2="6" y2="18"></line>
+        <line x1="6" y1="6" x2="18" y2="18"></line>
+      </svg>
+    </button>
+  </div>
+  <div class="modal-body">
+    <form #form="ngForm" (ngSubmit)="onSubmit(form)">
+
+      <div class="form-group">
+        <label>Tipo de Movimiento</label>
+        <div class="type-selector">
+          <label class="radio-label" [class.active-gasto]="type === 'Gasto'">
+            <input type="radio" name="type" [(ngModel)]="type" value="Gasto">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+              <line x1="12" y1="5" x2="12" y2="19"></line><polyline points="19 12 12 19 5 12"></polyline>
+            </svg>
+            Gasto
+          </label>
+          <label class="radio-label" [class.active-ingreso]="type === 'Ingreso'">
+            <input type="radio" name="type" [(ngModel)]="type" value="Ingreso">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+              <line x1="12" y1="19" x2="12" y2="5"></line><polyline points="5 12 12 5 19 12"></polyline>
+            </svg>
+            Ingreso
+          </label>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="description">Descripción</label>
+        <input type="text" id="description" name="description" [(ngModel)]="description"
+               required placeholder="Ej. Compra de supermercado" class="form-control">
+      </div>
+
+      <div class="form-group row">
+        <div class="col">
+          <label for="amount">Monto (Q)</label>
+          <input type="number" id="amount" name="amount" [(ngModel)]="amount"
+                 required placeholder="0.00" class="form-control" min="0.01" step="0.01">
+        </div>
+        <div class="col">
+          <label for="date">Fecha</label>
+          <input type="date" id="date" name="date" [(ngModel)]="date"
+                 required class="form-control">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="category">Categoría</label>
+        <select id="category" name="category" [(ngModel)]="category" class="form-control">
+          <option *ngFor="let cat of categories" [value]="cat">{{ cat }}</option>
+        </select>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeModal()">Cancelar</button>
+        <button type="submit" class="btn btn-primary" [disabled]="form.invalid || loading">
+          <span *ngIf="loading" class="spinner-sm"></span>
+          {{ editingId ? 'Actualizar' : 'Guardar' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
