@@ -1,0 +1,31 @@
+<app-hero-background>
+  <div class="welcome-overlay">
+    <img src="assets/logo.png" alt="Logo" class="welcome__logo">
+
+    <div class="welcome__badge">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/>
+      </svg>
+      <span>Sistema de Control de Gastos</span>
+    </div>
+
+    <h1 class="welcome__title">¡Bienvenido, {{ username }}!</h1>
+
+    <p class="welcome__subtitle">
+      Rol:
+      <span class="welcome__role-badge" [ngClass]="role === 'ADMIN' ? 'badge--admin' : 'badge--user'">
+        {{ role === 'ADMIN' ? 'Administrador' : 'Usuario' }}
+      </span>
+    </p>
+
+    <p class="welcome__message">Has iniciado sesión correctamente.</p>
+
+    <button class="welcome__cta" (click)="logout()">
+      Cerrar sesión
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M5 12h14"/>
+        <path d="m12 5 7 7-7 7"/>
+      </svg>
+    </button>
+  </div>
+</app-hero-background>
