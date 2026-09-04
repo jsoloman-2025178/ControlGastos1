@@ -1,0 +1,70 @@
+.glow-horizon {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.gh-arc {
+  position: absolute;
+  inset: 0;
+  border-radius: 100%;
+  animation: arc-move 2s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.gh-arc--static {
+  animation: none;
+}
+
+/* ===== Variante top ===== */
+.glow-horizon--top {
+  animation: enter-top 2s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.glow-horizon--top .gh-arc {
+  --arc-from: 0 -40%;
+}
+@keyframes enter-top {
+  from { translate: 0 -100%; scale: 1.5 1; opacity: 0; filter: blur(15px); }
+  to   { translate: 0 -50%;  scale: 1 1;   opacity: 1; filter: blur(0px); }
+}
+
+/* ===== Variante bottom ===== */
+.glow-horizon--bottom {
+  animation: enter-bottom 2s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.glow-horizon--bottom .gh-arc {
+  --arc-from: 0 40%;
+}
+@keyframes enter-bottom {
+  from { translate: 0 100%; scale: 1 1.5; opacity: 0; filter: blur(15px); }
+  to   { translate: 0 50%;  scale: 1 1;   opacity: 1; filter: blur(0px); }
+}
+
+/* ===== Variante left ===== */
+.glow-horizon--left {
+  animation: enter-left 2s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.glow-horizon--left .gh-arc {
+  --arc-from: 40% 0;
+}
+@keyframes enter-left {
+  from { translate: 100% 0; scale: 1.5 1; opacity: 0; filter: blur(15px); }
+  to   { translate: 50% 0;  scale: 1 1;   opacity: 1; filter: blur(0px); }
+}
+
+/* ===== Variante right ===== */
+.glow-horizon--right {
+  animation: enter-right 2s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.glow-horizon--right .gh-arc {
+  --arc-from: -40% 0;
+}
+@keyframes enter-right {
+  from { translate: -100% 0; scale: 1.5 1; opacity: 0; filter: blur(15px); }
+  to   { translate: -50% 0;  scale: 1 1;   opacity: 1; filter: blur(0px); }
+}
+
+@keyframes arc-move {
+  from { translate: var(--arc-from, 0 0); }
+  to   { translate: 0 0; }
+}
