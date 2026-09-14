@@ -1,0 +1,273 @@
+<div class="dashboard-layout">
+  <app-sidebar></app-sidebar>
+
+  <main class="main-content">
+    <!-- Header -->
+    <header class="header">
+      <div class="title-area">
+        <h1>Metas de ahorro</h1>
+        <p>Define objetivos y registra tus abonos para alcanzarlos</p>
+      </div>
+      <div class="header-actions">
+        <button class="btn btn-primary" (click)="openAddModal()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+          Nueva meta
+        </button>
+      </div>
+    </header>
+
+    <!-- Top Cards Row -->
+    <div class="top-row">
+      <!-- Progreso general (Large) -->
+      <div class="balance-card">
+        <span class="balance-badge">Progreso general</span>
+        <h2 class="balance-amount">{{ progresoGeneral }}%</h2>
+        <p class="balance-trend" *ngIf="totalObjetivo > 0">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2" width="16" height="16"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>
+          {{ totalAhorrado | number:'1.2-2' }} ahorrados de {{ totalObjetivo | number:'1.2-2' }}
+        </p>
+
+        <!-- Mini Chart SVG -->
+        <div class="mini-chart">
+          <svg viewBox="0 0 400 80" preserveAspectRatio="none" class="chart-line">
+            <defs>
+              <linearGradient id="lineGradMetas" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#10B981" stop-opacity="0.3"/>
+                <stop offset="100%" stop-color="#10B981" stop-opacity="0"/>
+              </linearGradient>
+            </defs>
+            <rect x="0" [attr.y]="80 - (80 * progresoGeneral / 100)" width="400" [attr.height]="80 * progresoGeneral / 100" fill="url(#lineGradMetas)"/>
+            <line x1="0" [attr.y1]="80 - (80 * progresoGeneral / 100)" x2="400" [attr.y2]="80 - (80 * progresoGeneral / 100)" stroke="#10B981" stroke-width="2.5" stroke-dasharray="6 4"/>
+          </svg>
+        </div>
+
+        <div class="balance-footer">
+          <div class="footer-stat">
+            <span class="footer-label">Metas activas</span>
+            <span class="footer-value text-white">{{ goals.length - metasCompletadas }}</span>
+          </div>
+          <div class="footer-stat">
+            <span class="footer-label">Completadas</span>
+            <span class="footer-value text-green">{{ metasCompletadas }}</span>
+          </div>
+          <div class="footer-stat">
+            <span class="footer-label">Falta ahorrar</span>
+            <span class="footer-value text-pink">{{ (totalObjetivo - totalAhorrado) | number:'1.0-0' }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Small Cards -->
+      <div class="small-cards">
+        <!-- Total ahorrado -->
+        <div class="stat-card">
+          <div class="stat-icon bg-green-soft">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2"><line x1="12" y1="19" x2="12" y2="5"></line><polyline points="5 12 12 5 19 12"></polyline></svg>
+          </div>
+          <h3 class="stat-value">{{ totalAhorrado | number:'1.2-2' }}</h3>
+          <p class="stat-label">Total ahorrado en tus metas</p>
+          <span class="stat-badge badge-green">{{ progresoGeneral }}% del objetivo</span>
+        </div>
+
+        <!-- Objetivo total -->
+        <div class="stat-card">
+          <div class="stat-icon bg-purple-soft">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#A855F7" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg>
+          </div>
+          <h3 class="stat-value">{{ totalObjetivo | number:'1.2-2' }}</h3>
+          <p class="stat-label">Suma de todos tus objetivos</p>
+          <span class="stat-badge badge-purple">{{ goals.length }} metas</span>
+        </div>
+
+        <!-- Completadas -->
+        <div class="stat-card">
+          <div class="stat-icon bg-yellow-soft">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#F59E0B" stroke-width="2"><path d="M8 21h8"></path><path d="M12 17v4"></path><path d="M7 4h10v6a5 5 0 0 1-10 0V4z"></path><path d="M17 5h3a1 1 0 0 1 0 4h-3"></path><path d="M7 5H4a1 1 0 0 0 0 4h3"></path></svg>
+          </div>
+          <h3 class="stat-value">{{ metasCompletadas }}</h3>
+          <p class="stat-label">Metas completadas 🎉</p>
+          <span class="stat-badge badge-yellow" *ngIf="goals.length > 0">{{ metasCompletadas }} de {{ goals.length }}</span>
+          <span class="stat-badge badge-yellow" *ngIf="goals.length === 0">Sin metas aún</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Goals List -->
+    <div class="goals-grid" *ngIf="goals.length > 0">
+      <div class="goal-card" *ngFor="let goal of goals">
+        <div class="goal-card-header">
+          <div class="goal-card-title">
+            <span class="goal-badge-icon" [style.background-color]="getColor(goal) + '26'" [style.color]="getColor(goal)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg>
+            </span>
+            <div class="goal-names">
+              <span class="goal-name">{{ goal.name }}</span>
+              <span class="goal-sub" *ngIf="!isCompletada(goal)">Faltan {{ getFaltante(goal) | number:'1.0-0' }}</span>
+              <span class="goal-sub completed" *ngIf="isCompletada(goal)">Meta completada 🎉</span>
+            </div>
+          </div>
+          <div class="goal-card-actions">
+            <button class="goal-btn-contrib" (click)="openContributeModal(goal, $event)" title="Abonar a esta meta">
+              + Abonar
+            </button>
+            <button class="goal-btn-icon" (click)="openEditModal(goal, $event)" title="Editar meta">
+              <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+            </button>
+            <button class="goal-btn-icon goal-btn-del" (click)="deleteGoal(goal, $event)" title="Eliminar meta">
+              <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="goal-progress-info">
+          <span class="goal-percent-big" [style.color]="getColor(goal)">{{ getGoalPercent(goal) }}%</span>
+          <div class="goal-amounts">
+            <div class="goal-amount">
+              <span class="goal-amount-label">Ahorrado</span>
+              <span class="goal-amount-value text-green">{{ goal.saved | number:'1.2-2' }}</span>
+            </div>
+            <div class="goal-amount">
+              <span class="goal-amount-label">Objetivo</span>
+              <span class="goal-amount-value">{{ goal.target | number:'1.2-2' }}</span>
+            </div>
+            <div class="goal-amount">
+              <span class="goal-amount-label">Restante</span>
+              <span class="goal-amount-value text-pink">{{ getFaltante(goal) | number:'1.2-2' }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="progress-track">
+          <div class="progress-fill" [style.width.%]="getGoalPercent(goal)" [style.background]="getColor(goal)"></div>
+        </div>
+
+        <span class="goal-state-badge completed" *ngIf="isCompletada(goal)">Completada</span>
+        <span class="goal-state-badge in-progress" *ngIf="!isCompletada(goal)">En progreso</span>
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <div class="chart-card" *ngIf="goals.length === 0">
+      <div class="empty-state">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="2" width="36" height="36"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg>
+        <p>Aún no tienes metas de ahorro registradas.</p>
+        <p class="empty-sub">Crea una meta y empieza a abonar para alcanzar tus objetivos.</p>
+        <button class="btn btn-primary" (click)="openAddModal()">+ Crear mi primera meta</button>
+      </div>
+    </div>
+
+    <!-- Modal Backdrop -->
+    <div class="modal-backdrop" *ngIf="showAddModal || showEditModal || showContributeModal" (click)="closeAddModal(); closeEditModal(); closeContributeModal()"></div>
+
+    <!-- Modal Nueva Meta -->
+    <div class="modal" *ngIf="showAddModal">
+      <div class="modal-header">
+        <h3>Nueva Meta de Ahorro</h3>
+        <button class="close-btn" (click)="closeAddModal()" aria-label="Cerrar">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div *ngIf="goalError" class="modal-alert modal-alert--error">{{ goalError }}</div>
+        <form (ngSubmit)="submitAddGoal()">
+          <div class="form-group">
+            <label>Nombre de la meta</label>
+            <input type="text" [(ngModel)]="newGoalName" name="goalName" class="form-control" placeholder="ej: Fondo de emergencia, Viaje, Laptop..." required autofocus>
+          </div>
+          <div class="form-group row">
+            <div class="col">
+              <label>Monto objetivo</label>
+              <input type="number" [(ngModel)]="newGoalTarget" name="goalTarget" class="form-control" placeholder="ej: 10000" min="1" step="any" required>
+            </div>
+            <div class="col">
+              <label>Ahorro actual</label>
+              <input type="number" [(ngModel)]="newGoalSaved" name="goalSaved" class="form-control" placeholder="ej: 1500" min="0" step="any">
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" (click)="closeAddModal()">Cancelar</button>
+            <button type="submit" class="btn btn-primary" [disabled]="goalLoading">
+              {{ goalLoading ? 'Guardando...' : 'Crear Meta' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Modal Editar Meta -->
+    <div class="modal" *ngIf="showEditModal && editingGoal">
+      <div class="modal-header">
+        <h3>Editar Meta</h3>
+        <button class="close-btn" (click)="closeEditModal()" aria-label="Cerrar">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div *ngIf="editError" class="modal-alert modal-alert--error">{{ editError }}</div>
+        <form (ngSubmit)="submitEditGoal()">
+          <div class="form-group">
+            <label>Nombre de la meta</label>
+            <input type="text" [(ngModel)]="editGoalName" name="editGoalName" class="form-control" required autofocus>
+          </div>
+          <div class="form-group">
+            <label>Monto objetivo</label>
+            <input type="number" [(ngModel)]="editGoalTarget" name="editGoalTarget" class="form-control" min="1" step="any" required>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" (click)="closeEditModal()">Cancelar</button>
+            <button type="submit" class="btn btn-primary" [disabled]="editLoading">
+              {{ editLoading ? 'Guardando...' : 'Actualizar Meta' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Modal Abonar a Meta -->
+    <div class="modal" *ngIf="showContributeModal && selectedGoal">
+      <div class="modal-header">
+        <h3>Abonar a Meta</h3>
+        <button class="close-btn" (click)="closeContributeModal()" aria-label="Cerrar">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="goal-modal-info">
+          <h4>{{ selectedGoal.name }}</h4>
+          <div class="goal-modal-stats">
+            <span>Ahorrado: <strong>{{ selectedGoal.saved | number:'1.0-0' }}</strong></span>
+            <span>Objetivo: <strong>{{ selectedGoal.target | number:'1.0-0' }}</strong></span>
+          </div>
+          <div class="progress-track" style="margin-top: 8px;">
+            <div class="progress-fill" [style.width.%]="getGoalPercent(selectedGoal)" [style.background]="getColor(selectedGoal)"></div>
+          </div>
+        </div>
+
+        <div *ngIf="contributeError" class="modal-alert modal-alert--error" style="margin-top: 14px;">{{ contributeError }}</div>
+
+        <form (ngSubmit)="submitContribute()" style="margin-top: 16px;">
+          <div class="form-group">
+            <label>Monto a abonar</label>
+            <input type="number" [(ngModel)]="contributeAmount" name="contribAmount" class="form-control" placeholder="ej: 500" min="1" step="any" required autofocus>
+          </div>
+
+          <div class="quick-chips">
+            <button type="button" class="chip-btn" (click)="contributeAmount = 100">+100</button>
+            <button type="button" class="chip-btn" (click)="contributeAmount = 500">+500</button>
+            <button type="button" class="chip-btn" (click)="contributeAmount = 1000">+1,000</button>
+            <button type="button" class="chip-btn" *ngIf="getFaltante(selectedGoal) > 0" (click)="contributeAmount = getFaltante(selectedGoal)">
+              Completar ({{ getFaltante(selectedGoal) | number:'1.0-0' }})
+            </button>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" (click)="closeContributeModal()">Cancelar</button>
+            <button type="submit" class="btn btn-primary" [disabled]="contributeLoading">
+              {{ contributeLoading ? 'Abonando...' : 'Registrar Abono' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </main>
+</div>

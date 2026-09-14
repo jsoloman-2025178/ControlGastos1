@@ -1,0 +1,191 @@
+<div class="dashboard-layout">
+  <app-sidebar></app-sidebar>
+
+  <main class="main-content">
+    <!-- Header -->
+    <header class="header">
+      <div class="title-area">
+        <h1>Presupuestos</h1>
+        <p>Controla tus límites de gasto por categoría de {{ currentMonthLabel }}</p>
+      </div>
+      <div class="header-actions">
+        <button class="btn btn-primary" (click)="openCreateModal()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+          Nuevo presupuesto
+        </button>
+      </div>
+    </header>
+
+    <!-- Top Cards Row -->
+    <div class="top-row">
+      <!-- Presupuesto Total (Large) -->
+      <div class="balance-card">
+        <span class="balance-badge">Presupuesto total</span>
+        <h2 class="balance-amount">{{ totalPresupuesto | number:'1.2-2' }}</h2>
+        <p class="balance-trend" *ngIf="totalPresupuesto > 0">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#A855F7" stroke-width="2" width="16" height="16"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+          Has usado el {{ promedioUso }}% de tu presupuesto mensual
+        </p>
+
+        <!-- Mini Chart SVG -->
+        <div class="mini-chart">
+          <svg viewBox="0 0 400 80" preserveAspectRatio="none" class="chart-line">
+            <defs>
+              <linearGradient id="lineGradPresupuesto" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#A855F7" stop-opacity="0.3"/>
+                <stop offset="100%" stop-color="#A855F7" stop-opacity="0"/>
+              </linearGradient>
+            </defs>
+            <rect x="0" [attr.y]="80 - (80 * promedioUso / 100)" width="400" [attr.height]="80 * promedioUso / 100" fill="url(#lineGradPresupuesto)"/>
+            <line x1="0" [attr.y1]="80 - (80 * promedioUso / 100)" x2="400" [attr.y2]="80 - (80 * promedioUso / 100)" stroke="#A855F7" stroke-width="2.5" stroke-dasharray="6 4"/>
+          </svg>
+        </div>
+
+        <div class="balance-footer">
+          <div class="footer-stat">
+            <span class="footer-label">Presupuestado</span>
+            <span class="footer-value text-white">{{ totalPresupuesto | number:'1.0-0' }}</span>
+          </div>
+          <div class="footer-stat">
+            <span class="footer-label">Gastado</span>
+            <span class="footer-value text-pink">{{ totalGastado | number:'1.0-0' }}</span>
+          </div>
+          <div class="footer-stat">
+            <span class="footer-label">Disponible</span>
+            <span class="footer-value" [class.text-green]="totalDisponible >= 0" [class.text-pink]="totalDisponible < 0">{{ totalDisponible | number:'1.0-0' }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Small Cards -->
+      <div class="small-cards">
+        <!-- Gastado -->
+        <div class="stat-card">
+          <div class="stat-icon bg-pink-soft">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#EC4899" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><polyline points="19 12 12 19 5 12"></polyline></svg>
+          </div>
+          <h3 class="stat-value">{{ totalGastado | number:'1.2-2' }}</h3>
+          <p class="stat-label">Gastado en categorías con presupuesto</p>
+          <span class="stat-badge badge-yellow">{{ promedioUso }}% del total</span>
+        </div>
+
+        <!-- Disponible -->
+        <div class="stat-card">
+          <div class="stat-icon bg-green-soft">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2"><line x1="12" y1="19" x2="12" y2="5"></line><polyline points="5 12 12 5 19 12"></polyline></svg>
+          </div>
+          <h3 class="stat-value">{{ totalDisponible | number:'1.2-2' }}</h3>
+          <p class="stat-label">Disponible para el resto del mes</p>
+          <span class="stat-badge" [class.badge-green]="totalDisponible >= 0" [class.badge-pink]="totalDisponible < 0">
+            {{ totalDisponible >= 0 ? 'Dentro del límite' : 'Límite superado' }}
+          </span>
+        </div>
+
+        <!-- Categorías -->
+        <div class="stat-card">
+          <div class="stat-icon bg-purple-soft">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#A855F7" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path></svg>
+          </div>
+          <h3 class="stat-value">{{ budgets.length }}</h3>
+          <p class="stat-label">Categorías con presupuesto activo</p>
+          <span class="stat-badge badge-purple">{{ availableCategories.length }} sin asignar</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Budgets List -->
+    <div class="bottom-row">
+      <div class="chart-card budgets-card">
+        <div class="chart-card-header header-with-link">
+          <h3>Presupuestos por categoría</h3>
+          <button class="link-btn" (click)="openCreateModal()">+ Nuevo presupuesto</button>
+        </div>
+
+        <div class="budget-item" *ngFor="let budget of budgets">
+          <div class="budget-header">
+            <div class="budget-title">
+              <span class="budget-icon"
+                    [style.background-color]="getCategoryColor(budget.category) + '26'"
+                    [style.color]="getCategoryColor(budget.category)">{{ getCategoriaInicial(budget.category) }}</span>
+              <div class="budget-names">
+                <span class="budget-name">{{ budget.category }}</span>
+                <span class="budget-sub">{{ getSpent(budget.category) | number:'1.2-2' }} de {{ budget.amount | number:'1.2-2' }}</span>
+              </div>
+            </div>
+            <div class="budget-actions">
+              <span class="stat-badge" [class]="getStatusClass(budget)">{{ getStatusLabel(budget) }}</span>
+              <span class="budget-percent">{{ getRawPercent(budget) }}%</span>
+              <button class="budget-btn-edit" (click)="openEditModal(budget)" title="Editar presupuesto">
+                <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+              </button>
+              <button class="budget-btn-delete" (click)="deleteBudget(budget)" title="Eliminar presupuesto">
+                <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="3 6 5 6 21 6"></polyline>
+                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                </svg>
+              </button>
+            </div>
+          </div>
+          <div class="progress-track">
+            <div class="progress-fill" [style.width.%]="getPercent(budget)" [style.background]="getBarColor(budget)"></div>
+          </div>
+          <div class="budget-footer">
+            <span class="budget-tag ok" *ngIf="getStatus(budget) === 'ok'">Te queda {{ (budget.amount - getSpent(budget.category)) | number:'1.0-0' }}</span>
+            <span class="budget-tag warning" *ngIf="getStatus(budget) === 'warning'">Cuidado, te queda {{ (budget.amount - getSpent(budget.category)) | number:'1.0-0' }}</span>
+            <span class="budget-tag danger" *ngIf="getStatus(budget) === 'danger'">Excedido en {{ (getSpent(budget.category) - budget.amount) | number:'1.0-0' }}</span>
+          </div>
+        </div>
+
+        <!-- Empty State -->
+        <div class="empty-state" *ngIf="budgets.length === 0">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="2" width="36" height="36"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+          <p>No hay presupuestos registrados.</p>
+          <p class="empty-sub">Crea uno para cada categoría y controla tus gastos del mes.</p>
+          <button class="link-btn" (click)="openCreateModal()">+ Crear mi primer presupuesto</button>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- Modal Backdrop -->
+<div class="modal-backdrop" *ngIf="showModal" (click)="closeModal()"></div>
+
+<!-- Modal Nuevo / Editar Presupuesto -->
+<div class="modal" *ngIf="showModal">
+  <div class="modal-header">
+    <h3>{{ editingId ? 'Editar Presupuesto' : 'Nuevo Presupuesto' }}</h3>
+    <button class="close-btn" (click)="closeModal()" aria-label="Cerrar">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="18" y1="6" x2="6" y2="18"></line>
+        <line x1="6" y1="6" x2="18" y2="18"></line>
+      </svg>
+    </button>
+  </div>
+  <div class="modal-body">
+    <div *ngIf="modalError" class="modal-alert modal-alert--error">{{ modalError }}</div>
+
+    <form (ngSubmit)="submitModal()">
+      <div class="form-group">
+        <label>Categoría</label>
+        <select name="budgetCategory" [(ngModel)]="modalCategory" class="form-control" required>
+          <option [ngValue]="''" disabled>Selecciona una categoría...</option>
+          <option *ngFor="let cat of availableCategories" [value]="cat">{{ cat }}</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Monto mensual</label>
+        <input type="number" name="budgetAmount" [(ngModel)]="modalAmount" class="form-control"
+               placeholder="ej: 1500" min="1" step="any" required autofocus>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeModal()">Cancelar</button>
+        <button type="submit" class="btn btn-primary">
+          {{ editingId ? 'Actualizar' : 'Crear Presupuesto' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

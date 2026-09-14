@@ -1,0 +1,132 @@
+<div class="dashboard-layout">
+  <app-sidebar></app-sidebar>
+
+  <main class="main-content">
+    <!-- Header -->
+    <header class="header">
+      <div class="title-area">
+        <h1>Configuración</h1>
+        <p>Administra tu perfil, preferencias y datos de la aplicación</p>
+      </div>
+      <div class="header-actions">
+        <button class="btn-save" (click)="savePreferences()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+          Guardar cambios
+        </button>
+      </div>
+    </header>
+
+    <div *ngIf="saveMessage" class="save-alert" [class.save-alert--success]="saveMessageType === 'success'" [class.save-alert--error]="saveMessageType === 'error'">
+      {{ saveMessage }}
+    </div>
+
+    <div class="settings-grid">
+      <!-- Sesión -->
+      <div class="settings-card">
+        <div class="settings-card-header">
+          <div class="stat-icon bg-yellow-soft">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#F59E0B" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+          </div>
+          <div>
+            <h3>Sesión</h3>
+            <p class="settings-sub">Estado de tu sesión actual</p>
+          </div>
+        </div>
+
+        <div class="settings-row">
+          <div class="settings-row-info">
+            <span class="row-title">Cerrar sesión</span>
+            <span class="row-desc">Cierra tu sesión en este dispositivo</span>
+          </div>
+          <button class="btn btn-secondary" (click)="logout($event)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+            Salir
+          </button>
+        </div>
+      </div>
+
+      <!-- Datos -->
+      <div class="settings-card danger-card">
+        <div class="settings-card-header">
+          <div class="stat-icon bg-pink-soft">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#EC4899" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"></ellipse><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path></svg>
+          </div>
+          <div>
+            <h3>Datos</h3>
+            <p class="settings-sub">Gestión de la información local</p>
+          </div>
+        </div>
+
+        <div class="data-stats">
+          <div class="data-stat">
+            <span class="data-stat-value">{{ presupuestosCount }}</span>
+            <span class="data-stat-label">Presupuestos locales</span>
+          </div>
+          <div class="data-stat">
+            <span class="data-stat-value">{{ metasCount }}</span>
+            <span class="data-stat-label">Metas de ahorro</span>
+          </div>
+        </div>
+
+        <div class="settings-row">
+          <div class="settings-row-info">
+            <span class="row-title">Restablecer presupuestos</span>
+            <span class="row-desc">Elimina los presupuestos guardados en este navegador</span>
+          </div>
+          <button class="btn btn-secondary" (click)="resetBudgets()">Restablecer</button>
+        </div>
+
+        <div class="settings-row">
+          <div class="settings-row-info">
+            <span class="row-title">Zona de riesgo</span>
+            <span class="row-desc">Elimina preferencias y presupuestos locales</span>
+          </div>
+          <button class="btn btn-danger" (click)="clearLocalData()">Eliminar datos</button>
+        </div>
+      </div>
+
+      <!-- Preferencias -->
+      <div class="settings-card">
+        <div class="settings-card-header">
+          <div class="stat-icon bg-green-soft">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+          </div>
+          <div>
+            <h3>Preferencias</h3>
+            <p class="settings-sub">Personaliza la aplicación</p>
+          </div>
+        </div>
+
+        <div class="settings-row">
+          <div class="settings-row-info">
+            <span class="row-title">Moneda de preferencia</span>
+            <span class="row-desc">Símbolo que se usará en tus reportes</span>
+          </div>
+          <div class="settings-row-action">
+            <select class="filter-select" [(ngModel)]="moneda" name="moneda">
+              <option *ngFor="let m of monedas" [value]="m.code">{{ m.label }}</option>
+            </select>
+            <button class="btn-save" (click)="guardarMoneda()">Guardar</button>
+          </div>
+        </div>
+
+        <div class="settings-row">
+          <div class="settings-row-info">
+            <span class="row-title">Renovación automática de sesión</span>
+            <span class="row-desc">Renueva el token mientras haya actividad</span>
+          </div>
+          <label class="switch">
+            <input type="checkbox" [(ngModel)]="autoRefresh" name="autoRefresh">
+            <span class="slider"></span>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Acerca de -->
+    <div class="about-bar">
+      <span>Control de Gastos · Finanzas Personales</span>
+      <span class="about-version">Versión 1.0.0</span>
+    </div>
+  </main>
+</div>
