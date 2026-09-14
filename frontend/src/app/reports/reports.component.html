@@ -1,0 +1,189 @@
+<div class="dashboard-layout">
+  <app-sidebar></app-sidebar>
+
+  <main class="main-content">
+    <!-- Header -->
+    <header class="header">
+      <div class="title-area">
+        <h1>Reportes</h1>
+        <p>Analiza el comportamiento de tus finanzas con datos reales</p>
+      </div>
+      <div class="header-actions">
+        <button class="btn btn-primary" (click)="exportCsv()" [disabled]="filtered.length === 0">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+          Exportar CSV
+        </button>
+      </div>
+    </header>
+
+    <!-- Filters -->
+    <div class="filters-bar">
+      <div class="filter-group">
+        <label>Período</label>
+        <div class="filter-pills">
+          <button class="pill" [class.active]="periodo === 'mes'" (click)="setPeriodo('mes')">Este mes</button>
+          <button class="pill" [class.active]="periodo === '3m'" (click)="setPeriodo('3m')">3 meses</button>
+          <button class="pill" [class.active]="periodo === '6m'" (click)="setPeriodo('6m')">6 meses</button>
+          <button class="pill" [class.active]="periodo === 'anio'" (click)="setPeriodo('anio')">Este año</button>
+          <button class="pill" [class.active]="periodo === 'todo'" (click)="setPeriodo('todo')">Todo</button>
+        </div>
+      </div>
+
+      <div class="filter-group">
+        <label>Categoría</label>
+        <select class="filter-select" [(ngModel)]="filterCategory" (ngModelChange)="applyFilters()">
+          <option *ngFor="let c of filterCategories" [value]="c">{{ c }}</option>
+        </select>
+      </div>
+
+      <span class="result-count">{{ filtered.length }} movimiento{{ filtered.length !== 1 ? 's' : '' }}</span>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="summary-row">
+      <div class="summary-card income">
+        <span class="summary-label">Ingresos del período</span>
+        <span class="summary-value text-green">{{ totalIngresos | number:'1.2-2' }}</span>
+      </div>
+      <div class="summary-card expense">
+        <span class="summary-label">Gastos del período</span>
+        <span class="summary-value text-pink">{{ totalGastos | number:'1.2-2' }}</span>
+      </div>
+      <div class="summary-card balance" [class.negative]="balance < 0">
+        <span class="summary-label">Balance del período</span>
+        <span class="summary-value" [class.text-green]="balance >= 0" [class.text-pink]="balance < 0">
+          {{ balance | number:'1.2-2' }}
+        </span>
+      </div>
+      <div class="summary-card saving">
+        <span class="summary-label">Tasa de ahorro</span>
+        <span class="summary-value text-white">{{ tasaAhorro }}%</span>
+      </div>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="bottom-row">
+      <!-- Tendencia mensual -->
+      <div class="chart-card">
+        <div class="chart-card-header">
+          <h3>Ingresos vs Gastos</h3>
+          <p class="chart-subtitle">Comparativo mensual según el período seleccionado</p>
+        </div>
+        <div class="bar-chart-container">
+          <svg viewBox="0 0 520 260" class="bar-chart">
+            <text *ngFor="let k of [0,1,2,3,4,5]" [attr.x]="50" [attr.y]="getGridY(k) + 4" class="axis-label" text-anchor="end">{{ getGridLabel(k) }}</text>
+            <line *ngFor="let k of [0,1,2,3,4,5]" [attr.x1]="60" [attr.y1]="getGridY(k)" [attr.x2]="500" [attr.y2]="getGridY(k)" class="grid-line"/>
+
+            <ng-container *ngFor="let mes of monthly; let i = index">
+              <rect [attr.x]="getBarX(i, false)" [attr.y]="getBarY(mes.ingresos)" [attr.width]="getBarWidth()" [attr.height]="getBarHeight(mes.ingresos)" rx="4" fill="#10B981"></rect>
+              <rect [attr.x]="getBarX(i, true)" [attr.y]="getBarY(mes.gastos)" [attr.width]="getBarWidth()" [attr.height]="getBarHeight(mes.gastos)" rx="4" fill="#EC4899"></rect>
+              <text [attr.x]="getGroupCenterX(i)" [attr.y]="240" class="axis-label" text-anchor="middle">{{ mes.label }}</text>
+            </ng-container>
+          </svg>
+
+          <div class="bar-legend">
+            <span class="legend-item"><span class="dot bg-green"></span> Ingresos</span>
+            <span class="legend-item"><span class="dot bg-pink"></span> Gastos</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Resumen rápido -->
+      <div class="chart-card">
+        <div class="chart-card-header">
+          <h3>Resumen del período</h3>
+          <p class="chart-subtitle">Indicadores clave de tus movimientos</p>
+        </div>
+
+        <div class="insight-item">
+          <span class="insight-icon bg-pink-soft">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#EC4899" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><polyline points="19 12 12 19 5 12"></polyline></svg>
+          </span>
+          <div class="insight-info">
+            <p class="insight-title">Promedio de gasto mensual</p>
+            <p class="insight-value">{{ promedioGastoMes | number:'1.0-0' }}</p>
+          </div>
+        </div>
+
+        <div class="insight-item">
+          <span class="insight-icon bg-purple-soft">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#A855F7" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="3"></circle></svg>
+          </span>
+          <div class="insight-info">
+            <p class="insight-title">Categoría con más gastos</p>
+            <p class="insight-value">{{ categoriaPrincipal || 'Sin datos' }}</p>
+          </div>
+        </div>
+
+        <div class="insight-item">
+          <span class="insight-icon bg-green-soft">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+          </span>
+          <div class="insight-info">
+            <p class="insight-title">Tasa de ahorro del período</p>
+            <p class="insight-value">{{ tasaAhorro }}% de tus ingresos</p>
+          </div>
+        </div>
+
+        <div class="insight-item">
+          <span class="insight-icon bg-yellow-soft">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#F59E0B" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+          </span>
+          <div class="insight-info">
+            <p class="insight-title">Total de movimientos analizados</p>
+            <p class="insight-value">{{ filtered.length }} registros</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Categories + Top movements -->
+    <div class="bottom-row-2">
+      <!-- Gastos por categoría -->
+      <div class="chart-card">
+        <div class="chart-card-header">
+          <h3>Gastos por categoría</h3>
+          <p class="chart-subtitle">Distribución del gasto total del período ({{ totalCategorias | number:'1.2-2' }})</p>
+        </div>
+
+        <div class="cat-row" *ngFor="let row of categoryRows">
+          <div class="cat-header">
+            <span class="cat-name">{{ row.name }}</span>
+            <span class="cat-amount">{{ row.amount | number:'1.2-2' }} · {{ row.pct }}%</span>
+          </div>
+          <div class="progress-track">
+            <div class="progress-fill" [style.width.%]="row.pct" [style.background]="row.color"></div>
+          </div>
+        </div>
+
+        <div class="empty-state" *ngIf="categoryRows.length === 0">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="2" width="32" height="32"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+          <p>No hay gastos en este período con los filtros actuales.</p>
+        </div>
+      </div>
+
+      <!-- Movimientos más grandes -->
+      <div class="chart-card">
+        <div class="chart-card-header">
+          <h3>Movimientos más grandes</h3>
+          <p class="chart-subtitle">Los 8 movimientos con mayor monto del período</p>
+        </div>
+        <div class="tx-list">
+          <div class="tx-item" *ngFor="let t of topMovements">
+            <span class="tx-icon"
+                  [style.background-color]="getCategoryColor(t.category) + '26'"
+                  [style.color]="getCategoryColor(t.category)">{{ t.category.charAt(0) }}</span>
+            <div class="tx-info">
+              <p class="tx-title">{{ t.description }}</p>
+              <p class="tx-meta">{{ t.category }} · {{ getRecentDateLabel(t.date) }}</p>
+            </div>
+            <span class="tx-amount" [class.gasto]="t.type === 'Gasto'" [class.ingreso]="t.type !== 'Gasto'">
+              {{ t.amount | number:'1.2-2' }}
+            </span>
+          </div>
+          <p class="tx-empty" *ngIf="topMovements.length === 0">No hay movimientos en este período.</p>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>

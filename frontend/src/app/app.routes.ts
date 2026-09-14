@@ -27,6 +27,26 @@ export const routes: Routes = [
     loadComponent: () => import('./transactions/transactions.component').then(m => m.TransactionsComponent)
   },
   {
+    path: 'presupuestos',
+    canActivate: [authGuard],
+    loadComponent: () => import('./budgets/budgets.component').then(m => m.BudgetsComponent)
+  },
+  {
+    path: 'reportes',
+    canActivate: [authGuard],
+    loadComponent: () => import('./reports/reports.component').then(m => m.ReportsComponent)
+  },
+  {
+    path: 'configuracion',
+    canActivate: [authGuard],
+    loadComponent: () => import('./settings/settings.component').then(m => m.SettingsComponent)
+  },
+  {
+    path: 'metas',
+    canActivate: [authGuard],
+    loadComponent: () => import('./goals/goals.component').then(m => m.GoalsComponent)
+  },
+  {
     path: '**',
     redirectTo: 'login'
   }
