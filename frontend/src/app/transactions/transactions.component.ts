@@ -27,6 +27,8 @@ export class TransactionsComponent implements OnInit, OnDestroy {
   type: 'Ingreso' | 'Gasto' = 'Gasto';
   amount: number | null = null;
   date = '';
+  maxDate = '';
+  dateError = '';
 
   // Filters
   filterType: 'Todos' | 'Ingreso' | 'Gasto' = 'Todos';
@@ -40,6 +42,11 @@ export class TransactionsComponent implements OnInit, OnDestroy {
   totalGastos = 0;
   balance = 0;
 
+  // Totales globales (sin filtros) para validar el saldo
+  globalIngresos = 0;
+  globalGastos = 0;
+  amountError = '';
+
   readonly categories = ['Comida', 'Transporte', 'Servicios', 'Entretenimiento', 'Salud', 'Vivienda', 'Ingresos', 'Otros'];
   readonly filterCategories = ['Todas', ...this.categories];
 
@@ -52,10 +59,12 @@ export class TransactionsComponent implements OnInit, OnDestroy {
     this.sub = this.transactionService.getTransactions().subscribe(data => {
       this.allTransactions = data;
       this.applyFilters();
+      this.calculateGlobalTotals();
+      this.validateAmount();
     });
 
-    const today = new Date();
-    this.date = today.toISOString().split('T')[0];
+    this.maxDate = this.getTodayLocal();
+    this.date = this.maxDate;
   }
 
   ngOnDestroy(): void {
@@ -126,6 +135,38 @@ export class TransactionsComponent implements OnInit, OnDestroy {
     this.balance = this.totalIngresos - this.totalGastos;
   }
 
+  /** Totales de TODAS las transacciones (sin filtros), base para la validación de saldo */
+  private calculateGlobalTotals(): void {
+    this.globalIngresos = this.allTransactions.filter(t => t.type === 'Ingreso').reduce((s, t) => s + Number(t.amount), 0);
+    this.globalGastos = this.allTransactions.filter(t => t.type === 'Gasto').reduce((s, t) => s + Number(t.amount), 0);
+  }
+
+  /**
+   * Saldo disponible real: ingresos globales - gastos globales.
+   * Al editar, el monto original del gasto en edición no cuenta en contra.
+   */
+  get saldoDisponible(): number {
+    let gastos = this.globalGastos;
+    if (this.editingId) {
+      const original = this.allTransactions.find(t => t.id === this.editingId);
+      if (original && original.type === 'Gasto') {
+        gastos -= Number(original.amount);
+      }
+    }
+    return this.globalIngresos - gastos;
+  }
+
+  /** Valida en vivo que un gasto no supere el saldo disponible */
+  validateAmount(): void {
+    this.amountError = '';
+    if (this.type !== 'Gasto' || !this.amount || this.amount <= 0) return;
+
+    if (this.amount > this.saldoDisponible) {
+      this.amountError =
+        `Saldo insuficiente para realizar gasto. Solo puedes gastar hasta ${this.saldoDisponible.toFixed(2)}.`;
+    }
+  }
+
   // ─── Modal ─────────────────────────────────────────
 
   openModal(): void {
@@ -140,7 +181,10 @@ export class TransactionsComponent implements OnInit, OnDestroy {
     this.type = t.type;
     this.amount = Number(t.amount);
     this.date = String(t.date).slice(0, 10);
+    this.amountError = '';
     this.showModal = true;
+    this.validateAmount();
+    this.validateDate();
   }
 
   closeModal(): void {
@@ -154,11 +198,38 @@ export class TransactionsComponent implements OnInit, OnDestroy {
     this.category = 'Comida';
     this.type = 'Gasto';
     this.amount = null;
-    this.date = new Date().toISOString().split('T')[0];
+    this.date = this.maxDate || new Date().toISOString().split('T')[0];
+    this.amountError = '';
+    this.dateError = '';
+  }
+
+  /** Fecha de hoy en formato yyyy-mm-dd usando la zona horaria local */
+  private getTodayLocal(): string {
+    const d = new Date();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${d.getFullYear()}-${month}-${day}`;
+  }
+
+  /** Valida que la fecha no sea posterior a hoy */
+  validateDate(): void {
+    this.dateError = '';
+    if (!this.date) return;
+    if (this.date > this.maxDate) {
+      this.dateError = 'La fecha no puede ser posterior a hoy.';
+    }
   }
 
   onSubmit(form: NgForm): void {
     if (form.invalid || !this.amount) return;
+
+    // Regla de negocio: no se puede gastar más de lo que se ingresa
+    this.validateAmount();
+    if (this.amountError) return;
+
+    // Regla de negocio: la fecha no puede ser futura
+    this.validateDate();
+    if (this.dateError) return;
 
     this.loading = true;
     const payload = {

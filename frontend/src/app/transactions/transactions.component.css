@@ -411,6 +411,44 @@
 
 .form-control:focus { outline: none; border-color: #A855F7; }
 
+/* ===== Validación de saldo ===== */
+.modal-alert {
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 0.88rem;
+  margin-bottom: 16px;
+}
+
+.modal-alert--error {
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid #ef4444;
+  color: #fca5a5;
+}
+
+.input-error {
+  border-color: #ef4444 !important;
+}
+
+.input-error:focus {
+  border-color: #ef4444 !important;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15);
+}
+
+.saldo-hint {
+  display: block;
+  margin-top: 6px;
+  font-size: 0.78rem;
+  color: #9ca3af;
+}
+
+.saldo-hint strong {
+  font-weight: 600;
+}
+
+.text-green { color: #10B981; }
+.text-pink { color: #EC4899; }
+
+
 .type-selector { display: flex; gap: 14px; }
 
 .radio-label {
