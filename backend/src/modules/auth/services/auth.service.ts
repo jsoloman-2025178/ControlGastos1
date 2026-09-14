@@ -6,7 +6,7 @@ import { JWT_SECRET } from '../../../config/jwt';
 
 dotenv.config();
 
-export const JWT_EXPIRES_IN = '1min';
+export const JWT_EXPIRES_IN = '1h';
 
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID || '';
 const googleClient = new OAuth2Client(GOOGLE_CLIENT_ID);
