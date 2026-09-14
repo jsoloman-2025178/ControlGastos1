@@ -29,7 +29,7 @@
       <!-- Balance Card (Large) -->
       <div class="balance-card">
         <span class="balance-badge">Balance disponible</span>
-        <h2 class="balance-amount">Q {{ balance | number:'1.2-2' }}</h2>
+        <h2 class="balance-amount">{{ balance | number:'1.2-2' }}</h2>
         <p class="balance-trend" *ngIf="getBalanceTrend() as bt" [class.down]="bt.dir === 'down'">
           <svg *ngIf="bt.dir === 'up'" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2" width="16" height="16"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>
           <svg *ngIf="bt.dir === 'down'" viewBox="0 0 24 24" fill="none" stroke="#EC4899" stroke-width="2" width="16" height="16"><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"></polyline><polyline points="17 18 23 18 23 12"></polyline></svg>
@@ -53,15 +53,15 @@
         <div class="balance-footer">
           <div class="footer-stat">
             <span class="footer-label">Ingresos</span>
-            <span class="footer-value text-green">Q {{ totalIngresos | number:'1.0-0' }}</span>
+            <span class="footer-value text-green">{{ totalIngresos | number:'1.0-0' }}</span>
           </div>
           <div class="footer-stat">
             <span class="footer-label">Gastos</span>
-            <span class="footer-value text-pink">Q {{ totalGastos | number:'1.0-0' }}</span>
+            <span class="footer-value text-pink">{{ totalGastos | number:'1.0-0' }}</span>
           </div>
           <div class="footer-stat">
             <span class="footer-label">Ahorro del mes</span>
-            <span class="footer-value text-white">Q {{ ahorro | number:'1.0-0' }}</span>
+            <span class="footer-value text-white">{{ ahorro | number:'1.0-0' }}</span>
           </div>
         </div>
       </div>
@@ -73,7 +73,7 @@
           <div class="stat-icon bg-green-soft">
             <svg viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2"><line x1="12" y1="19" x2="12" y2="5"></line><polyline points="5 12 12 5 19 12"></polyline></svg>
           </div>
-          <h3 class="stat-value">Q {{ totalIngresos | number:'1.2-2' }}</h3>
+          <h3 class="stat-value">{{ totalIngresos | number:'1.2-2' }}</h3>
           <p class="stat-label">Ingresos de {{ currentMonthName }}</p>
           <span class="stat-badge" [class.badge-green]="isPositiva(totalIngresos, prevIngresos)" [class.badge-pink]="!isPositiva(totalIngresos, prevIngresos)">{{ getVariacionIngresos() }}</span>
         </div>
@@ -83,7 +83,7 @@
           <div class="stat-icon bg-pink-soft">
             <svg viewBox="0 0 24 24" fill="none" stroke="#EC4899" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><polyline points="19 12 12 19 5 12"></polyline></svg>
           </div>
-          <h3 class="stat-value">Q {{ totalGastos | number:'1.2-2' }}</h3>
+          <h3 class="stat-value">{{ totalGastos | number:'1.2-2' }}</h3>
           <p class="stat-label">Gastos de {{ currentMonthName }}</p>
           <span class="stat-badge" [class.badge-pink]="!isPositiva(totalGastos, prevGastos)" [class.badge-green]="isPositiva(totalGastos, prevGastos)">{{ getVariacionGastos() }}</span>
         </div>
@@ -93,7 +93,7 @@
           <div class="stat-icon bg-yellow-soft">
             <svg viewBox="0 0 24 24" fill="none" stroke="#F59E0B" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
           </div>
-          <h3 class="stat-value">Q {{ ahorro | number:'1.2-2' }}</h3>
+          <h3 class="stat-value">{{ ahorro | number:'1.2-2' }}</h3>
           <p class="stat-label">Ahorro neto</p>
           <span class="stat-badge badge-yellow">{{ getAhorroPorcentaje() }}% del ingreso</span>
         </div>
@@ -134,7 +134,7 @@
             <!-- Center Total -->
             <div class="bubble bubble-center">
               <span class="bubble-total-label">Total</span>
-              <span class="bubble-total-value">Q{{ totalCategorias | number:'1.0-0' }}</span>
+              <span class="bubble-total-value">{{ totalCategorias | number:'1.0-0' }}</span>
             </div>
           </div>
         </div>
@@ -144,7 +144,7 @@
           <span class="cat-legend-item" *ngFor="let cat of categories">
             <span class="cat-dot" [style.background-color]="cat.color"></span>
             {{ cat.name }}
-            <span class="cat-amount">Q{{ cat.amount | number:'1.0-0' }}</span>
+            <span class="cat-amount">{{ cat.amount | number:'1.0-0' }}</span>
           </span>
         </div>
       </div>
@@ -197,7 +197,7 @@
               <p class="tx-meta">{{ t.category }} · {{ getRecentDateLabel(t.date) }}</p>
             </div>
             <span class="tx-amount" [class.gasto]="t.type === 'Gasto'" [class.ingreso]="t.type !== 'Gasto'">
-              {{ t.type === 'Gasto' ? '-' : '+' }}Q{{ t.amount | number:'1.2-2' }}
+              {{ t.type === 'Gasto' ? '-' : '+' }}{{ t.amount | number:'1.2-2' }}
             </span>
           </div>
           <p class="tx-empty" *ngIf="recentTransactions.length === 0">No hay movimientos registrados aún.</p>
@@ -232,9 +232,9 @@
                  [style.background]="goalColors[i % goalColors.length]"></div>
           </div>
           <div class="goal-footer">
-            <span class="goal-sub">Q{{ goal.saved | number:'1.0-0' }} de Q{{ goal.target | number:'1.0-0' }}</span>
+            <span class="goal-sub">{{ goal.saved | number:'1.0-0' }} de {{ goal.target | number:'1.0-0' }}</span>
             <span class="goal-tag completed" *ngIf="goal.saved >= goal.target">Completada 🎉</span>
-            <span class="goal-tag pending" *ngIf="goal.target > goal.saved">Faltan Q{{ (goal.target - goal.saved) | number:'1.0-0' }}</span>
+            <span class="goal-tag pending" *ngIf="goal.target > goal.saved">Faltan {{ (goal.target - goal.saved) | number:'1.0-0' }}</span>
           </div>
         </div>
         <p class="tx-empty" *ngIf="goals.length === 0">Aún no tienes metas de ahorro registradas.</p>
@@ -266,11 +266,11 @@
       </div>
       <div class="form-group row">
         <div class="col">
-          <label>Monto objetivo (Q)</label>
+          <label>Monto objetivo</label>
           <input type="number" [(ngModel)]="newGoalTarget" name="goalTarget" class="form-control" placeholder="ej: 10000" min="1" step="any" required>
         </div>
         <div class="col">
-          <label>Ahorro actual (Q)</label>
+          <label>Ahorro actual</label>
           <input type="number" [(ngModel)]="newGoalSaved" name="goalSaved" class="form-control" placeholder="ej: 1500" min="0" step="any">
         </div>
       </div>
@@ -299,8 +299,8 @@
     <div class="goal-modal-info">
       <h4>{{ selectedGoal.name }}</h4>
       <div class="goal-modal-stats">
-        <span>Ahorrado: <strong>Q{{ selectedGoal.saved | number:'1.0-0' }}</strong></span>
-        <span>Objetivo: <strong>Q{{ selectedGoal.target | number:'1.0-0' }}</strong></span>
+        <span>Ahorrado: <strong>{{ selectedGoal.saved | number:'1.0-0' }}</strong></span>
+        <span>Objetivo: <strong>{{ selectedGoal.target | number:'1.0-0' }}</strong></span>
       </div>
       <div class="progress-track" style="margin-top: 8px;">
         <div class="progress-fill" [style.width.%]="getGoalPercent(selectedGoal)" style="background: #10B981;"></div>
@@ -311,16 +311,16 @@
 
     <form (ngSubmit)="submitContribute()" style="margin-top: 16px;">
       <div class="form-group">
-        <label>Monto a abonar (Q)</label>
+        <label>Monto a abonar</label>
         <input type="number" [(ngModel)]="contributeAmount" name="contribAmount" class="form-control" placeholder="ej: 500" min="1" step="any" required autofocus>
       </div>
 
       <div class="quick-chips">
-        <button type="button" class="chip-btn" (click)="contributeAmount = 100">+Q100</button>
-        <button type="button" class="chip-btn" (click)="contributeAmount = 500">+Q500</button>
-        <button type="button" class="chip-btn" (click)="contributeAmount = 1000">+Q1,000</button>
+        <button type="button" class="chip-btn" (click)="contributeAmount = 100">+100</button>
+        <button type="button" class="chip-btn" (click)="contributeAmount = 500">+500</button>
+        <button type="button" class="chip-btn" (click)="contributeAmount = 1000">+1,000</button>
         <button type="button" class="chip-btn" *ngIf="selectedGoal.target > selectedGoal.saved" (click)="contributeAmount = selectedGoal.target - selectedGoal.saved">
-          Completar (Q{{ (selectedGoal.target - selectedGoal.saved) | number:'1.0-0' }})
+          Completar ({{ (selectedGoal.target - selectedGoal.saved) | number:'1.0-0' }})
         </button>
       </div>
 

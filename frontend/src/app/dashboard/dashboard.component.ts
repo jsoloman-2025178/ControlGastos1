@@ -231,7 +231,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.trendLabels = [];
     for (let k = 0; k <= 5; k++) {
       const v = this.trendMax - k * this.trendStep;
-      this.trendLabels.push(v >= 1000 ? `Q${v / 1000}k` : `Q${v}`);
+      this.trendLabels.push(v >= 1000 ? `${v / 1000}k` : `${v}`);
     }
   }
 
