@@ -249,3 +249,97 @@
   min-height: 44px;
   animation: fade-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.5s both;
 }
+
+.hidden {
+  display: none !important;
+}
+
+.google-unconfigured-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  animation: fade-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.5s both;
+}
+
+.btn--google-notice {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  color: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 12px 20px;
+  border-radius: 9999px;
+  font-weight: 500;
+  font-size: 0.92rem;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  backdrop-filter: blur(8px);
+}
+
+.btn--google-notice:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.28);
+  transform: translateY(-1px);
+}
+
+.google-icon {
+  flex-shrink: 0;
+}
+
+.config-notice-card {
+  background: rgba(30, 27, 75, 0.55);
+  border: 1px solid rgba(168, 85, 247, 0.3);
+  border-radius: 12px;
+  padding: 16px;
+  width: 100%;
+  font-size: 0.82rem;
+  color: #d1d5db;
+  text-align: left;
+  animation: fade-up 0.35s ease both;
+}
+
+.config-notice-card h4 {
+  margin: 0 0 8px 0;
+  color: #c084fc;
+  font-size: 0.9rem;
+}
+
+.config-notice-card p {
+  margin: 0 0 10px 0;
+  line-height: 1.4;
+}
+
+.config-notice-card ol {
+  margin: 0;
+  padding-left: 18px;
+  line-height: 1.6;
+}
+
+.config-notice-card a {
+  color: #a855f7;
+  text-decoration: underline;
+}
+
+.config-notice-card pre {
+  margin: 6px 0;
+  padding: 6px 10px;
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: 6px;
+  font-size: 0.72rem;
+  color: #38bdf8;
+  overflow-x: auto;
+  font-family: monospace;
+}
+
+.config-notice-card code {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 2px 6px;
+  border-radius: 4px;
+  color: #f1f5f9;
+  font-size: 0.75rem;
+}
