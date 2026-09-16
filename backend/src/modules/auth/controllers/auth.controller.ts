@@ -52,7 +52,8 @@ export const googleLogin = async (req: Request, res: Response): Promise<void> =>
 };
 
 export const googleClientId = (_req: Request, res: Response): void => {
-  res.status(200).json({ clientId: process.env.GOOGLE_CLIENT_ID || null });
+  const clientId = process.env.GOOGLE_CLIENT_ID?.trim() || null;
+  res.status(200).json({ clientId });
 };
 
 /**
