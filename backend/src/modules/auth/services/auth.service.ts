@@ -8,8 +8,9 @@ dotenv.config();
 
 export const JWT_EXPIRES_IN = '1h';
 
-const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID || '';
-const googleClient = new OAuth2Client(GOOGLE_CLIENT_ID);
+function getGoogleClientId(): string {
+  return process.env.GOOGLE_CLIENT_ID?.trim() || '';
+}
 
 export interface LoginInput {
   username: string;
@@ -70,25 +71,27 @@ export class AuthService {
   }
 
   /**
-   * Valida el ID Token de Google (Google Identity Services), busca al usuario
-   * por su correo y lo registra automáticamente si es la primera vez.
+   * Valida el ID Token de Google contra la API oficial de Google (Google Identity Services),
+   * extrae el perfil verificado del usuario y lo registra o actualiza en la base de datos.
    */
   async loginWithGoogle(credential: string): Promise<LoginResponse> {
     if (!credential) {
       return { success: false, message: 'No se recibió la credencial de Google.' };
     }
 
-    if (!GOOGLE_CLIENT_ID) {
+    const clientId = getGoogleClientId();
+    if (!clientId) {
       return {
         success: false,
-        message: 'El login con Google no está configurado en el servidor (GOOGLE_CLIENT_ID).'
+        message: 'El login con Google no está configurado en el servidor. Configura GOOGLE_CLIENT_ID en el archivo .env del backend.'
       };
     }
 
     try {
-      const ticket = await googleClient.verifyIdToken({
+      const client = new OAuth2Client(clientId);
+      const ticket = await client.verifyIdToken({
         idToken: credential,
-        audience: GOOGLE_CLIENT_ID
+        audience: clientId
       });
 
       const payload = ticket.getPayload();

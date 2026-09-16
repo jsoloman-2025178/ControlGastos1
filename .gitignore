@@ -9,6 +9,7 @@ node_modules/
 # Compilacion y builds
 dist/
 build/
+.angular/
 *.tsbuildinfo
 
 # Logs

@@ -68,9 +68,14 @@ export async function upsertGoogleUser(data: GoogleProfileData): Promise<User> {
   }
 
   // Registro automático: genera un username único a partir del nombre o correo.
-  const base = (data.name || data.email.split('@')[0])
+  const rawBase = data.name || data.email.split('@')[0];
+  const base = rawBase
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
     .toLowerCase()
-    .replace(/\s+/g, '.');
+    .replace(/[^a-z0-9._-]/g, '.')
+    .replace(/\.+/g, '.')
+    .replace(/^\.|\.$/g, '') || 'google.user';
 
   let username = base;
   let counter = 1;
